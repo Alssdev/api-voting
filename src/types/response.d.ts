@@ -24,7 +24,7 @@ declare global {
       nmesa: number;
       cotaS: number;
       cotaI: number;
-      est: Est;
+      est?: Est;
       voluntarios: Voluntario[];
     }
     export interface Voluntario extends Ciudadano {
