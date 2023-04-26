@@ -18,6 +18,19 @@ export default(): Router =>{
     }
   })
 
+  router.get("/", async function(req:Request, res: Response){
+    try {
+      //Tomo los datos de la base de datos
+      let response = await sql`SELECT * FROM departamentos`
+      //envío la respuesta en un json
+      res.json({
+        list: response,
+      })
+    } catch (error) {
+      res.sendStatus(500);
+    }
+  })
+
 
 
 
