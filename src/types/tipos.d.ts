@@ -1,4 +1,4 @@
-import { Municipio, Est } from './response';
+import { Municipio, Est } from './tipos';
 export default {}
 
 declare global {
@@ -12,8 +12,9 @@ declare global {
     export interface Municipios {
       nombre: string;
       idmunicipio: number;
-      numH: number;
+      numh: number;
       depto?: Depto;
+      dnombre?:string;
     }
 
     export interface Establecimientos {

@@ -1,7 +1,7 @@
 import { Express, Request, Response } from 'express';
 import express from 'express';
 import Controllers from './controllers';
-import response from './types/response';
+import response from './types/tipos';
 
 // creating an express instance
 const app: Express = express();
