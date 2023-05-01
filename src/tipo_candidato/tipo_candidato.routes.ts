@@ -45,5 +45,16 @@ export default (): Router => {
     }
   })
 
+  router.put("/:tipo", async function (req: Request, res: Response) {
+    try {
+      let request = req.body as Req.TipoCandidatos;
+      await sql`DELETE FROM tipos_candidatos WHERE tipo = ${req.params.tipo}`;
+      await sql`INSERT INTO tipos_candidatos VALUES (${request.tipo})`;
+      res.sendStatus(200);
+    } catch (error) {
+      res.sendStatus(500);
+    }
+  })
+
   return router;
 };
