@@ -21,6 +21,7 @@ declare global {
       idest: number;
       nombre: string;
       direccion: string;
+      idmunicipio?: number;
       municipio?: Municipio;
     }
 
@@ -28,6 +29,7 @@ declare global {
       nmesa: number;
       cotaSuperior: number;
       cotaInferior: number;
+      idest: number;
       est?: Est;
     }
     export interface Ciudadano {
@@ -36,18 +38,34 @@ declare global {
       dpi: string;
       idemp: string;
       direccion: string;
+      idmunicipio?: number;
       municipio?: Municipio;
+    }
+
+    export interface Voluntarios{
+      idemp: string;
+      nmesa: number;
+      tipo: string;
+      ciudadano?: Ciudadano;
+      mesa?: Mesas;
+
     }
 
     export interface Partidos{
       nombre: string;
       acronimo: string;
       logo: string;
+      dpiSecretario: string;
       secretario?: Ciudadano;
     }
 
     export interface Candidatos{
+      idemp: string;
+      acronimo: string;
       casilla: string;
+      tipo: string;
+      idmnicipio: number;
+      dnombre: string;
       ciudadanos?: Ciudadano;
       partido?: Partidos;
       tipoCandidatos?: TipoCandidatos;
@@ -57,6 +75,9 @@ declare global {
     }
 
     export interface Votos{
+      acronimo: string;
+      nmesa: number;
+      tipo: string;
       cantidad: number;
       partido?: Partidos;
       mesa?: Mesas;
@@ -73,14 +94,16 @@ declare global {
     export interface Municipios {
       nombre: string;
       idmunicipio: number;
-      numH: number;
+      numh: number;
       depto?: Depto;
+      dnombre?:string;
     }
 
     export interface Establecimientos {
       idest: number;
       nombre: string;
       direccion: string;
+      idmunicipio?: number;
       municipio?: Municipio;
     }
 
@@ -88,6 +111,7 @@ declare global {
       nmesa: number;
       cotaSuperior: number;
       cotaInferior: number;
+      idest: number;
       est?: Est;
     }
     export interface Ciudadano {
@@ -96,18 +120,34 @@ declare global {
       dpi: string;
       idemp: string;
       direccion: string;
+      idmunicipio?: number;
       municipio?: Municipio;
+    }
+
+    export interface Voluntarios{
+      idemp: string;
+      nmesa: number;
+      tipo: string;
+      ciudadano?: Ciudadano;
+      mesa?: Mesas;
+
     }
 
     export interface Partidos{
       nombre: string;
       acronimo: string;
       logo: string;
+      dpiSecretario: string;
       secretario?: Ciudadano;
     }
 
     export interface Candidatos{
+      idemp: string;
+      acronimo: string;
       casilla: string;
+      tipo: string;
+      idmnicipio: number;
+      dnombre: string;
       ciudadanos?: Ciudadano;
       partido?: Partidos;
       tipoCandidatos?: TipoCandidatos;
@@ -117,6 +157,9 @@ declare global {
     }
 
     export interface Votos{
+      acronimo: string;
+      nmesa: number;
+      tipo: string;
       cantidad: number;
       partido?: Partidos;
       mesa?: Mesas;
