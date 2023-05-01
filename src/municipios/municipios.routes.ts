@@ -47,5 +47,16 @@ export default (): Router => {
     }
   })
 
+  router.put("/:idmunicipio", async function (req: Request, res: Response) {
+    try {
+      let request = req.body as Req.Municipios;
+      await sql`UPDATE municipios SET ${sql(request, "dnombre", "nombre", "numh")}  WHERE idmunicipio = ${req.params.idmunicipio}`;
+      res.sendStatus(200);
+    } catch (error) {
+      res.sendStatus(500);
+      console.log(error);
+    }
+  })
+
   return router;
 };
