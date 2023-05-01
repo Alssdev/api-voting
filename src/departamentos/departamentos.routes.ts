@@ -54,5 +54,16 @@ export default (): Router => {
     }
   })
 
+  router.put("/:nombre", async function (req: Request, res: Response) {
+    try {
+      let request = req.body as Req.Depto;
+      await sql`DELETE FROM departamentos WHERE nombre = ${req.params.nombre}`;
+      await sql`INSERT INTO departamentos VALUES (${request.nombre})`;
+      res.sendStatus(200);
+    } catch (error) {
+      res.sendStatus(500);
+    }
+  })
+
   return router;
 };
