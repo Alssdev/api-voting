@@ -1,7 +1,7 @@
-import { Express, Request, Response } from 'express';
+import { Express} from 'express';
 import express from 'express';
 import Controllers from './controllers';
-import response from './types/tipos';
+import cors from 'cors';
 
 // creating an express instance
 const app: Express = express();
@@ -12,6 +12,7 @@ app.set('port', 4000);
 
 // middlewares goes here
 app.use(express.json());
+app.use(cors());
 
 // routes goes here
 Controllers(app);
