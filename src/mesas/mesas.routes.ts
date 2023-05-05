@@ -1,4 +1,4 @@
-/*import { Router, Request, Response } from "express";
+import { Router, Request, Response } from "express";
 import sql from "./../database"
 import response from "../types/tipos";
 
@@ -8,11 +8,12 @@ export default (): Router => {
   router.post("/", async function (req: Request, res: Response) {
     try {
       let request = req.body as Req.Mesas;
-      await sql`INSERT INTO mesas ${sql(request)}`;
+      await sql`INSERT INTO mesas ${sql(request,"nmesa","cotasuperior","cotainferior","idest")}`;
       res.sendStatus(200);
     } catch (error) {
-      res.sendStatus(500);
       console.log(error);
+      res.sendStatus(500);
+      
     }
   })
 
@@ -27,9 +28,9 @@ export default (): Router => {
     }
   })
 
-  router.get("/:nmesa/:idest", async function (req: Request, res: Response) {
+  router.get("/:idmesa", async function (req: Request, res: Response) {
     try {
-      let response = await sql`SELECT * FROM mesas WHERE nmesa = ${req.params.nmesa} AND idest = ${req.params.idest}`
+      let response = await sql`SELECT * FROM mesas WHERE idmesa = ${req.params.idmesa}`;
       res.json({
         list: response,
       })
@@ -38,19 +39,19 @@ export default (): Router => {
     }
   })
 
-  router.delete("/:nmesa/:idest", async function (req: Request, res: Response) {
+  router.delete("/:idmesa", async function (req: Request, res: Response) {
     try {
-      await sql`DELETE FROM mesas WHERE nmesa = ${req.params.nmesa} AND idest = ${req.params.idest}`;
+      await sql`DELETE FROM mesas WHERE idmesa = ${req.params.idmesa}`;
       res.sendStatus(200);
     } catch (error) {
       res.sendStatus(500);
     }
   })
 
-  router.put("/:nmesa/:idest", async function (req: Request, res: Response) {
+  router.put("/:idmesa", async function (req: Request, res: Response) {
     try {
       let request = req.body as Req.Mesas;
-      await sql`UPDATE mesas SET ${sql(request,"cotaInferior", "cotaSuperior")}  WHERE nmesa = ${req.params.nmesa} AND idest = ${req.params.idest}`;
+      await sql`UPDATE mesas SET ${sql(request,"nmesa","cotasuperior","cotainferior","idest")} WHERE idmesa = ${req.params.idmesa}`;
       res.sendStatus(200);
     } catch (error) {
       res.sendStatus(500);
@@ -60,7 +61,3 @@ export default (): Router => {
 
   return router;
 };
-*/
-
-//A la hora de ser una llave cmpuesta
-//¿No permite cambiar la llave primaria? 

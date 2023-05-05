@@ -28,8 +28,8 @@ declare global {
 
     export interface Mesas {
       nmesa: number;
-      cotaSuperior: number;
-      cotaInferior: number;
+      cotasuperior: number;
+      cotainferior: number;
       idest: number;
       idmesa: number
       est?: Est;
