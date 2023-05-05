@@ -8,7 +8,7 @@ export default (): Router => {
   router.post("/", async function (req: Request, res: Response) {
     try {
       let request = req.body as Req.Establecimientos;
-      await sql`INSERT INTO establecimientos ${sql(request)}`;
+      await sql`INSERT INTO establecimientos ${sql(request,"nombre","idmunicipio","direccion")}`;
       res.sendStatus(200);
     } catch (error) {
       res.sendStatus(500);
@@ -50,7 +50,7 @@ export default (): Router => {
   router.put("/:idest", async function (req: Request, res: Response) {
     try {
       let request = req.body as Req.Establecimientos;
-      await sql`UPDATE establecimientos SET ${sql(request,"direccion","idmunicipio","nombre")}  WHERE idest = ${req.params.idest}`;
+      await sql`UPDATE establecimientos SET ${sql(request,"nombre","idmunicipio","direccion")}  WHERE idest = ${req.params.idest}`;
       res.sendStatus(200);
     } catch (error) {
       res.sendStatus(500);
