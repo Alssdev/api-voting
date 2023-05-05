@@ -10,7 +10,7 @@ export default (): Router => {
       //Recibir los datos 
       let request = req.body as Req.Depto;
       //Ejecutar el query
-      await sql`INSERT INTO departamentos VALUES (${request.nombre})`;
+      await sql`INSERT INTO departamentos VALUES ${sql(request, "nombre")}`;
       //Respuesta codigo
       res.sendStatus(200);
     } catch (error) {
@@ -32,10 +32,10 @@ export default (): Router => {
     }
   })
 
-  router.get("/:nombre", async function (req: Request, res: Response) {
+  router.get("/:iddep", async function (req: Request, res: Response) {
     try {
       //Tomo los datos de la base de datos
-      let response = await sql`SELECT * FROM departamentos WHERE nombre = ${req.params.nombre}`;
+      let response = await sql`SELECT * FROM departamentos WHERE iddep = ${req.params.iddep}`;
       //envío la respuesta en un json
       res.json({
         list: response
@@ -45,20 +45,19 @@ export default (): Router => {
     }
   })
 
-  router.delete("/:nombre", async function (req: Request, res: Response) {
+  router.delete("/:iddep", async function (req: Request, res: Response) {
     try {
-      await sql`DELETE FROM departamentos WHERE nombre = ${req.params.nombre}`;
+      await sql`DELETE FROM departamentos WHERE iddep = ${req.params.iddep}`;
       res.sendStatus(200);
     } catch (error) {
       res.sendStatus(500);
     }
   })
 
-  router.put("/:nombre", async function (req: Request, res: Response) {
+  router.put("/:iddep", async function (req: Request, res: Response) {
     try {
       let request = req.body as Req.Depto;
-      await sql`DELETE FROM departamentos WHERE nombre = ${req.params.nombre}`;
-      await sql`INSERT INTO departamentos VALUES (${request.nombre})`;
+      await sql`UPDATE departamentos SET ${sql(request,"nombre")}  WHERE iddep = ${req.params.iddep}`;
       res.sendStatus(200);
     } catch (error) {
       res.sendStatus(500);
