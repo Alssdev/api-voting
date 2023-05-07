@@ -19,7 +19,12 @@ export default (): Router => {
 
   router.get("/", async function (req: Request, res: Response) {
     try {
-      let response = await sql`SELECT * FROM mesas`
+      let response = await sql<Req.Mesas[]>`SELECT * FROM mesas`
+      for(let mesas of response){
+        let est = (await sql<Req.Establecimientos[]>`SELECT * FROM establecimientos WHERE idest=${mesas.idest}`)[0];
+        mesas.est =est;
+      }
+
       res.json({
         list: response,
       })
@@ -30,7 +35,12 @@ export default (): Router => {
 
   router.get("/:idmesa", async function (req: Request, res: Response) {
     try {
-      let response = await sql`SELECT * FROM mesas WHERE idmesa = ${req.params.idmesa}`;
+      let response = await sql<Req.Mesas[]>`SELECT * FROM mesas WHERE idmesa = ${req.params.idmesa}`
+      for(let mesas of response){
+        let est = (await sql<Req.Establecimientos[]>`SELECT * FROM establecimientos WHERE idest=${mesas.idest}`)[0];
+        mesas.est =est;
+      }
+
       res.json({
         list: response,
       })

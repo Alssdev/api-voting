@@ -18,7 +18,11 @@ export default (): Router => {
 
   router.get("/", async function (req: Request, res: Response) {
     try {
-      let response = await sql`SELECT * FROM municipios`
+      let response = await sql<Req.Municipios[]>`SELECT * FROM municipios`
+      for(let municipios of response){
+        let depto = (await sql<Req.Depto[]>`SELECT * FROM departamentos WHERE iddep=${municipios.iddep}`)[0];
+        municipios.depto =depto;
+      }
       res.json({
         list: response,
       })
@@ -29,7 +33,11 @@ export default (): Router => {
 
   router.get("/:idmunicipio", async function (req: Request, res: Response) {
     try {
-      let response = await sql`SELECT * FROM municipios WHERE idmunicipio = ${req.params.idmunicipio}`
+      let response = await sql<Req.Municipios[]>`SELECT * FROM municipios  WHERE idmunicipio = ${req.params.idmunicipio}`
+      for(let municipios of response){
+        let depto = (await sql<Req.Depto[]>`SELECT * FROM departamentos WHERE iddep=${municipios.iddep}`)[0];
+        municipios.depto =depto;
+      }
       res.json({
         list: response,
       })
