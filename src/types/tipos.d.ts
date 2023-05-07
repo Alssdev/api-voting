@@ -22,7 +22,7 @@ declare global {
       idest: number;
       nombre: string;
       direccion: string;
-      idmunicipio?: number;
+      idmunicipio: number;
       municipio?: Municipio;
     }
 
@@ -39,8 +39,8 @@ declare global {
       apellidos: string;
       dpi: string;
       idemp: number;
-      idmunicipio?: number;
       direccion: string;
+      idmunicipio?: number;
       municipio?: Municipio;
     }
 
@@ -57,8 +57,7 @@ declare global {
       idemp: number;
       nmesa: number;
       tipo: string;
-      ciudadano?: Ciudadano;
-      mesa?: Mesas;
+
 
     }
 
@@ -67,7 +66,7 @@ declare global {
       idpartido: number;
       casilla: number;
       tipo: string;
-      idmnicipio: number;
+      idmunicipio: number;
       iddep: number;
       ciudadanos?: Ciudadano;
       partido?: Partidos;
@@ -82,9 +81,7 @@ declare global {
       nmesa: number;
       tipo: string;
       cantidad: number;
-      partido?: Partidos;
-      mesa?: Mesas;
-      tipoCandidatos?: TipoCandidatos; 
+
     }
   }
   namespace Res {
@@ -107,7 +104,7 @@ declare global {
       idest: number;
       nombre: string;
       direccion: string;
-      idmunicipio?: number;
+      idmunicipio: number;
       municipio?: Municipio;
     }
 
@@ -124,8 +121,8 @@ declare global {
       apellidos: string;
       dpi: string;
       idemp: number;
-      idmunicipio?: number;
       direccion: string;
+      idmunicipio?: number;
       municipio?: Municipio;
     }
 
@@ -142,8 +139,7 @@ declare global {
       idemp: number;
       nmesa: number;
       tipo: string;
-      ciudadano?: Ciudadano;
-      mesa?: Mesas;
+ 
 
     }
 
@@ -152,7 +148,7 @@ declare global {
       idpartido: number;
       casilla: number;
       tipo: string;
-      idmnicipio: number;
+      idmunicipio: number;
       iddep: number;
       ciudadanos?: Ciudadano;
       partido?: Partidos;
@@ -167,9 +163,6 @@ declare global {
       nmesa: number;
       tipo: string;
       cantidad: number;
-      partido?: Partidos;
-      mesa?: Mesas;
-      tipoCandidatos?: TipoCandidatos; 
     }
   }
 }
