@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import sql from "./../database"
-import response from "../types/tipos";
+import { leerMunicipio } from '../helpers/funciones';
 
 
 export default (): Router => {
@@ -37,10 +37,7 @@ export default (): Router => {
     try {
       let response = await sql<Req.Establecimientos[]>`SELECT * FROM establecimientos WHERE idest = ${req.params.idest}`
       for(let establecimiento of response){
-        let municipio = (await sql<Req.Municipios[]>`SELECT * FROM municipios WHERE idmunicipio=${establecimiento.idmunicipio}`)[0];
-        let depto = (await sql<Req.Depto[]>`SELECT *FROM departamentos WHERE iddep = ${municipio.iddep}`)[0];
-        municipio.depto = depto;
-        establecimiento.municipio = municipio;
+        let municipio = await leerMunicipio(establecimiento.idmunicipio);
       }
       res.json({
         list: response,
