@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import sql from "./../database"
-import response from "../types/tipos";
+import { leerCiudadano} from '../helpers/funciones';
 
 
 export default (): Router => {
@@ -18,18 +18,25 @@ export default (): Router => {
 
   router.get("/", async function (req: Request, res: Response) {
     try {
-      let response = await sql`SELECT * FROM partidos`
+      let response = await sql<Req.Partidos[]>`SELECT * FROM partidos`
+      for(let partido of response){
+        let ciudadano = await leerCiudadano(partido.idemp);
+        partido.secretario=ciudadano;
+      }
       res.json({
         list: response,
       })
     } catch (error) {
+      console.log(error);
       res.sendStatus(500);
     }
   })
 
   router.get("/:idpartido", async function (req: Request, res: Response) {
     try {
-      let response = await sql`SELECT * FROM partidos WHERE idpartido = ${req.params.idpartido}`
+      let response = await sql<Req.Partidos[]>`SELECT * FROM partidos WHERE idpartido = ${req.params.idpartido}`
+      let ciudadano = await leerCiudadano(response[0].idemp);
+      response[0].secretario=ciudadano;
       res.json({
         list: response,
       })

@@ -40,7 +40,7 @@ declare global {
       dpi: string;
       idemp: number;
       direccion: string;
-      idmunicipio?: number;
+      idmunicipio: number;
       municipio?: Municipio;
     }
 
@@ -55,9 +55,10 @@ declare global {
 
     export interface Voluntarios{
       idemp: number;
-      nmesa: number;
+      idmesa: number;
       tipo: string;
-
+      ciudadano?: Ciudadano;
+      mesa?: Mesas;
 
     }
 
@@ -78,10 +79,12 @@ declare global {
 
     export interface Votos{
       idpartido: number;
-      nmesa: number;
+      idmesa: number;
       tipo: string;
       cantidad: number;
-
+      partido?: Partidos;
+      mesa?: Mesas;
+      tipoCandidato?: TipoCandidatos;
     }
   }
   namespace Res {
@@ -110,8 +113,8 @@ declare global {
 
     export interface Mesas {
       nmesa: number;
-      cotaSuperior: number;
-      cotaInferior: number;
+      cotasuperior: number;
+      cotainferior: number;
       idest: number;
       idmesa: number
       est?: Est;
@@ -122,7 +125,7 @@ declare global {
       dpi: string;
       idemp: number;
       direccion: string;
-      idmunicipio?: number;
+      idmunicipio: number;
       municipio?: Municipio;
     }
 
@@ -137,9 +140,10 @@ declare global {
 
     export interface Voluntarios{
       idemp: number;
-      nmesa: number;
+      idmesa: number;
       tipo: string;
- 
+      ciudadano?: Ciudadano;
+      mesa?: Mesas;
 
     }
 
@@ -160,9 +164,12 @@ declare global {
 
     export interface Votos{
       idpartido: number;
-      nmesa: number;
+      idmesa: number;
       tipo: string;
       cantidad: number;
+      partido?: Partidos;
+      mesa?: Mesas;
+      tipoCandidato?: TipoCandidatos;
     }
   }
 }

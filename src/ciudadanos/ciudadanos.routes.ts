@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import sql from "./../database"
-import response from "../types/tipos";
+import { leerMunicipio } from '../helpers/funciones';
 
 export default (): Router => {
   const router = Router();
@@ -8,6 +8,7 @@ export default (): Router => {
     try {
       let request = req.body as Req.Ciudadano;
       await sql`INSERT INTO ciudadanos ${sql(request, "nombres","apellidos","dpi","idmunicipio","direccion")}`;
+      
       res.sendStatus(200);
     } catch (error) {
       console.log(error);
@@ -17,7 +18,11 @@ export default (): Router => {
 
   router.get("/", async function (req: Request, res: Response) {
     try {
-      let response = await sql`SELECT * FROM ciudadanos`;
+      let response = await sql<Req.Ciudadano[]>`SELECT * FROM ciudadanos`;
+      for(let ciudadano of response){
+        let municipio = await leerMunicipio(ciudadano.idmunicipio);
+        ciudadano.municipio = municipio;
+      }
       res.json({
         list: response,
       })
@@ -28,7 +33,9 @@ export default (): Router => {
 
   router.get("/:idemp", async function (req: Request, res: Response) {
     try {
-      let response = await sql`SELECT * FROM ciudadanos WHERE idemp = ${req.params.idemp}`;
+      let response = await sql<Req.Ciudadano[]>`SELECT * FROM ciudadanos WHERE idemp = ${req.params.idemp}`;
+      let municipio = await leerMunicipio(response[0].idmunicipio);
+      response[0].municipio = municipio;
       res.json({
         list: response
       })

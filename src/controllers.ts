@@ -12,7 +12,7 @@ import Votos  from './votos/votos.routes';
 ;
 export default(app: Application) =>{
   app.use('/municipios', Municipios())
-  app.use('/tipo_candidato', TipoCandidatos())
+  app.use('/tipos_candidatos', TipoCandidatos())
   app.use('/establecimientos', Establecimientos())
   app.use('/departamentos', Departamentos())
   app.use('/mesas', Mesas())

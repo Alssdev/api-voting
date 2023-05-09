@@ -20,9 +20,7 @@ export default (): Router => {
     try {
       let response = await sql<Req.Establecimientos[]>`SELECT * FROM establecimientos`
       for(let establecimiento of response){
-        let municipio = (await sql<Req.Municipios[]>`SELECT * FROM municipios WHERE idmunicipio=${establecimiento.idmunicipio}`)[0];
-        let depto = (await sql<Req.Depto[]>`SELECT *FROM departamentos WHERE iddep = ${municipio.iddep}`)[0];
-        municipio.depto = depto;
+        let municipio = await leerMunicipio(establecimiento.idmunicipio);
         establecimiento.municipio = municipio;
       }
       res.json({
@@ -36,9 +34,8 @@ export default (): Router => {
   router.get("/:idest", async function (req: Request, res: Response) {
     try {
       let response = await sql<Req.Establecimientos[]>`SELECT * FROM establecimientos WHERE idest = ${req.params.idest}`
-      for(let establecimiento of response){
-        let municipio = await leerMunicipio(establecimiento.idmunicipio);
-      }
+      let municipio = await leerMunicipio(response[0].idmunicipio);
+      response[0].municipio = municipio;
       res.json({
         list: response,
       })

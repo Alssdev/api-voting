@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import sql from "./../database"
-import response from "../types/tipos";
+import { leerEstablecimiento } from '../helpers/funciones';
 
 
 export default (): Router => {
@@ -21,7 +21,7 @@ export default (): Router => {
     try {
       let response = await sql<Req.Mesas[]>`SELECT * FROM mesas`
       for(let mesas of response){
-        let est = (await sql<Req.Establecimientos[]>`SELECT * FROM establecimientos WHERE idest=${mesas.idest}`)[0];
+        let est = await leerEstablecimiento(mesas.idest);
         mesas.est =est;
       }
 
@@ -36,11 +36,8 @@ export default (): Router => {
   router.get("/:idmesa", async function (req: Request, res: Response) {
     try {
       let response = await sql<Req.Mesas[]>`SELECT * FROM mesas WHERE idmesa = ${req.params.idmesa}`
-      for(let mesas of response){
-        let est = (await sql<Req.Establecimientos[]>`SELECT * FROM establecimientos WHERE idest=${mesas.idest}`)[0];
-        mesas.est =est;
-      }
-
+      let est = await leerEstablecimiento(response[0].idest);
+      response[0].est =est;
       res.json({
         list: response,
       })
