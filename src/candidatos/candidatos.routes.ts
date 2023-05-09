@@ -20,7 +20,7 @@ export default (): Router => {
 
   router.get("/", async function (req: Request, res: Response) {
     try {
-      let response = await  sql<Req.Candidatos[]>`SELECT * FROM candidatos`;
+      let response = await  sql<Req.Candidatos[]>`SELECT * FROM candidatos ORDER BY idemp`;
       for(let candidato of response){
         let municipio = await leerMunicipio(candidato.idmunicipio);
         let tipo = await leerTipoCandidato(candidato.tipo);

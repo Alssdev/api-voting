@@ -19,7 +19,7 @@ export default (): Router => {
 
   router.get("/", async function (req: Request, res: Response) {
     try {
-      let response = await sql<Req.Votos[]>`SELECT * FROM votos`
+      let response = await sql<Req.Votos[]>`SELECT * FROM votos ORDER BY idmesa`
       for(let votos of response){
         let partido = await leerPartido(votos.idpartido);
         let mesa = await leerMesa(votos.idmesa);
@@ -46,6 +46,9 @@ export default (): Router => {
       response[0].partido = partido;
       response[0].mesa = mesa;
       response[0].tipoCandidato = tipo;
+      res.json({
+        list: response,
+      })
     } catch (error) {
       console.log(error)
       res.sendStatus(500);

@@ -16,7 +16,7 @@ export default (): Router => {
 
   router.get("/", async function (req: Request, res: Response) {
     try {
-      let response = await sql`SELECT * FROM tipos_candidatos`;
+      let response = await sql`SELECT * FROM tipos_candidatos ORDER BY tipo`;
       res.json({
         list: response,
       })

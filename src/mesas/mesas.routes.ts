@@ -19,7 +19,7 @@ export default (): Router => {
 
   router.get("/", async function (req: Request, res: Response) {
     try {
-      let response = await sql<Req.Mesas[]>`SELECT * FROM mesas`
+      let response = await sql<Req.Mesas[]>`SELECT * FROM mesas ORDER BY idmesa`
       for(let mesas of response){
         let est = await leerEstablecimiento(mesas.idest);
         mesas.est =est;
