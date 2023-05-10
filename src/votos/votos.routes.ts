@@ -19,7 +19,7 @@ export default (): Router => {
 
   router.get("/", async function (req: Request, res: Response) {
     try {
-      let response = await sql<Req.Votos[]>`SELECT * FROM votos ORDER BY idmesa`
+      let response = await sql<Req.Votos[]>`SELECT * FROM votos`
       for(let votos of response){
         let partido = await leerPartido(votos.idpartido);
         let mesa = await leerMesa(votos.idmesa);
