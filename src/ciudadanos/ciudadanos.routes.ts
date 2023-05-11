@@ -44,6 +44,19 @@ export default (): Router => {
     }
   })
 
+  router.get("/:idmesa/mesa", async function (req: Request, res: Response) {
+    try {
+      let response = await sql<Req.Ciudadano[]>`SELECT C.nombres, C.apellidos, C.idemp, C.dpi FROM ciudadanos C, ubicacion_mesas M
+                                                WHERE M.idmesa =  ${req.params.idmesa} AND C.idemp >= M.cotainferior AND C.idemp <= M.cotasuperior AND C.idmunicipio = M.idmunicipio`;
+      res.json({
+        list: response,
+      })
+    } catch (error) {
+      console.log(error);
+      res.sendStatus(500);
+    }
+  })
+
   router.delete("/:idemp", async function (req: Request, res: Response) {
     try {
       await sql`DELETE FROM ciudadanos  WHERE idemp = ${req.params.idemp}`;
@@ -65,3 +78,4 @@ export default (): Router => {
 
   return router;
 };
+
