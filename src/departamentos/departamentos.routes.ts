@@ -1,11 +1,11 @@
-import { Router, Request, Response } from "express";
+import {Router, Request, Response, NextFunction} from 'express';
 import sql from "./../database"
 import response from "../types/tipos";
 
 export default (): Router => {
   const router = Router();
   //Crear departamentos
-  router.post("/", async function (req: Request, res: Response) {
+  router.post("/", async function (req: Request, res: Response, next: NextFunction) {
     try {
       //Recibir los datos 
       let request = req.body as Req.Depto;
@@ -15,11 +15,11 @@ export default (): Router => {
       res.sendStatus(200);
     } catch (error) {
       //codigo error
-      res.sendStatus(500);
+      next(error)
     }
   })
 
-  router.get("/", async function (req: Request, res: Response) {
+  router.get("/", async function (req: Request, res: Response, next: NextFunction) {
     try {
       //Tomo los datos de la base de datos
       let response = await sql`SELECT * FROM departamentos  ORDER BY iddep`;
@@ -28,11 +28,11 @@ export default (): Router => {
         list: response,
       })
     } catch (error) {
-      res.sendStatus(500);
+      next(error)
     }
   })
 
-  router.get("/:iddep", async function (req: Request, res: Response) {
+  router.get("/:iddep", async function (req: Request, res: Response, next: NextFunction) {
     try {
       //Tomo los datos de la base de datos
       let response = await sql`SELECT * FROM departamentos WHERE iddep = ${req.params.iddep}`;
@@ -41,26 +41,26 @@ export default (): Router => {
         list: response
       })
     } catch (error) {
-      res.sendStatus(500);
+      next(error)
     }
   })
 
-  router.delete("/:iddep", async function (req: Request, res: Response) {
+  router.delete("/:iddep", async function (req: Request, res: Response, next: NextFunction) {
     try {
       await sql`DELETE FROM departamentos WHERE iddep = ${req.params.iddep}`;
       res.sendStatus(200);
     } catch (error) {
-      res.sendStatus(500);
+      next(error)
     }
   })
 
-  router.put("/:iddep", async function (req: Request, res: Response) {
+  router.put("/:iddep", async function (req: Request, res: Response, next: NextFunction) {
     try {
       let request = req.body as Req.Depto;
       await sql`UPDATE departamentos SET ${sql(request,"nombre")}  WHERE iddep = ${req.params.iddep}`;
       res.sendStatus(200);
     } catch (error) {
-      res.sendStatus(500);
+      next(error)
     }
   })
 

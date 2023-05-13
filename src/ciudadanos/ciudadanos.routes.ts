@@ -1,10 +1,10 @@
-import { Router, Request, Response } from "express";
+import {Router, Request, Response, NextFunction} from 'express';
 import sql from "./../database"
 import { leerMunicipio } from '../helpers/funciones';
 
 export default (): Router => {
   const router = Router();
-  router.post("/", async function (req: Request, res: Response) {
+  router.post("/", async function (req: Request, res: Response, next: NextFunction) {
     try {
       let request = req.body as Req.Ciudadano;
       await sql`INSERT INTO ciudadanos ${sql(request, "nombres","apellidos","dpi","idmunicipio","direccion")}`;
@@ -12,11 +12,11 @@ export default (): Router => {
       res.sendStatus(200);
     } catch (error) {
       console.log(error);
-      res.sendStatus(500);
+      next(error)
     }
   })
 
-  router.get("/", async function (req: Request, res: Response) {
+  router.get("/", async function (req: Request, res: Response, next: NextFunction) {
     try {
       let response = await sql<Req.Ciudadano[]>`SELECT * FROM ciudadanos  ORDER BY idemp`;
       for(let ciudadano of response){
@@ -27,11 +27,11 @@ export default (): Router => {
         list: response,
       })
     } catch (error) {
-      res.sendStatus(500);
+      next(error)
     }
   })
 
-  router.get("/:idemp", async function (req: Request, res: Response) {
+  router.get("/:idemp", async function (req: Request, res: Response, next: NextFunction) {
     try {
       let response = await sql<Req.Ciudadano[]>`SELECT * FROM ciudadanos WHERE idemp = ${req.params.idemp}`;
       let municipio = await leerMunicipio(response[0].idmunicipio);
@@ -40,11 +40,11 @@ export default (): Router => {
         list: response
       })
     } catch (error) {
-      res.sendStatus(500);
+      next(error)
     }
   })
 
-  router.get("/:idmesa/mesa", async function (req: Request, res: Response) {
+  router.get("/:idmesa/mesa", async function (req: Request, res: Response, next: NextFunction) {
     try {
       let response = await sql<Req.Ciudadano[]>`SELECT C.nombres, C.apellidos, C.idemp, C.dpi FROM ciudadanos C, ubicacion_mesas M
                                                 WHERE M.idmesa =  ${req.params.idmesa} AND C.idemp >= M.cotainferior AND C.idemp <= M.cotasuperior AND C.idmunicipio = M.idmunicipio`;
@@ -53,26 +53,26 @@ export default (): Router => {
       })
     } catch (error) {
       console.log(error);
-      res.sendStatus(500);
+      next(error)
     }
   })
 
-  router.delete("/:idemp", async function (req: Request, res: Response) {
+  router.delete("/:idemp", async function (req: Request, res: Response, next: NextFunction) {
     try {
       await sql`DELETE FROM ciudadanos  WHERE idemp = ${req.params.idemp}`;
       res.sendStatus(200);
     } catch (error) {
-      res.sendStatus(500);
+      next(error)
     }
   })
 
-  router.put("/:idemp", async function (req: Request, res: Response) {
+  router.put("/:idemp", async function (req: Request, res: Response, next: NextFunction) {
     try {
       let request = req.body as Req.Ciudadano;
       await sql`UPDATE ciudadanos SET${sql(request, "nombres","apellidos","direccion","dpi","idmunicipio")}  WHERE idemp = ${req.params.idemp}`;
       res.sendStatus(200);
     } catch (error) {
-      res.sendStatus(500);
+      next(error)
     }
   })
 

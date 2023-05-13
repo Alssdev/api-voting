@@ -47,8 +47,7 @@ async function leerPartido(idpartido: number) {
   return partido;
 }
 
-async function insertarVoto(idpartido: number, idmesa: number, tipo: string, cantidad: number) {
-  console.log(`INSERT INTO votos(idpartido, idmesa, tipo, cantidad) VALUES (${idpartido}, ${idmesa},${tipo},${cantidad})`);
+async function insertarVoto(idpartido: number, idmesa: number, tipo: string, cantidad: number) {  console.log(`INSERT INTO votos(idpartido, idmesa, tipo, cantidad) VALUES (${idpartido}, ${idmesa},${tipo},${cantidad})`);
   await sql`INSERT INTO votos(idpartido, idmesa, tipo, cantidad) VALUES (${idpartido}, ${idmesa},${tipo},${cantidad})`;
 }
 

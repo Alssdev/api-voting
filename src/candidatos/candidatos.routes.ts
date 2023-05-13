@@ -1,4 +1,4 @@
-import { Router, Request, Response } from "express";
+import { Router, Request, Response, NextFunction } from 'express';
 import sql from "./../database"
 import { leerMunicipio, leerCiudadano, leerTipoCandidato, leerPartido } from '../helpers/funciones';
 
@@ -6,18 +6,17 @@ import { leerMunicipio, leerCiudadano, leerTipoCandidato, leerPartido } from '..
 
 export default (): Router => {
   const router = Router();
-  router.post("/", async function (req: Request, res: Response) {
+  router.post("/", async function (req: Request, res: Response, next: NextFunction) {
     try {
       let request = req.body as Req.Candidatos;
       await sql`INSERT INTO candidatos ${sql(request, "idemp", "idpartido", "casilla", "tipo", "idmunicipio", "iddep")}`;
       res.sendStatus(200);
     } catch (error) {
-      res.sendStatus(500);
-      console.log(error);
+      next(error)
     }
   })
 
-  router.get("/", async function (req: Request, res: Response) {
+  router.get("/", async function (req: Request, res: Response, next: NextFunction) {
     try {
       let response = await sql<Req.Candidatos[]>`SELECT * FROM candidatos ORDER BY idemp`;
       for (let candidato of response) {
@@ -35,11 +34,11 @@ export default (): Router => {
       })
     } catch (error) {
       console.log(error);
-      res.sendStatus(500);
+      next(error)
     }
   })
 
-  router.get("/:idemp", async function (req: Request, res: Response) {
+  router.get("/:idemp", async function (req: Request, res: Response, next: NextFunction) {
     try {
       let response = await sql`SELECT * FROM candidatos WHERE idemp = ${req.params.idemp}`
       let municipio = await leerMunicipio(response[0].idmunicipio);
@@ -54,11 +53,11 @@ export default (): Router => {
         list: response,
       })
     } catch (error) {
-      res.sendStatus(500);
+      next(error)
     }
   })
 
-  router.get("/:idpartido/binomio", async function (req: Request, res: Response) {
+  router.get("/:idpartido/binomio", async function (req: Request, res: Response, next: NextFunction) {
     try {
       let responseP = await sql`SELECT * FROM candidatos WHERE idpartido = ${req.params.idpartido} AND tipo ='P'`
       let responseV = await sql`SELECT * FROM candidatos WHERE idpartido = ${req.params.idpartido} AND tipo ='V'`
@@ -71,11 +70,11 @@ export default (): Router => {
         }
       })
     } catch (error) {
-      res.sendStatus(500);
+      next(error)
     }
   })
 
-  router.get("/:idpartido/alcaldes", async function (req: Request, res: Response) {
+  router.get("/:idpartido/alcaldes", async function (req: Request, res: Response, next: NextFunction) {
     try {
       try {
         let response = await sql<Req.Candidatos[]>`SELECT * 
@@ -95,16 +94,16 @@ export default (): Router => {
         });
       } catch (error) {
         console.log(error);
-        res.sendStatus(500);
+        next(error)
       }
     } catch (error) {
       console.log(error)
-      res.sendStatus(500);
+      next(error)
     }
   })
 
 
-  router.get("/:idpartido/:iddep/diputado_distrito", async function (req: Request, res: Response) {
+  router.get("/:idpartido/:iddep/diputado_distrito", async function (req: Request, res: Response, next: NextFunction) {
     try {
       try {
         let response = await sql<Req.Candidatos[]>`SELECT * 
@@ -125,15 +124,15 @@ export default (): Router => {
         })
       } catch (error) {
         console.log(error);
-        res.sendStatus(500);
+        next(error)
       }
     } catch (error) {
       console.log(error)
-      res.sendStatus(500);
+      next(error)
     }
   })
 
-  router.get("/:idpartido/diputado_listado_nacional", async function (req: Request, res: Response) {
+  router.get("/:idpartido/diputado_listado_nacional", async function (req: Request, res: Response, next: NextFunction) {
     try {
       try {
         let response = await sql<Req.Candidatos[]>`SELECT * 
@@ -154,33 +153,31 @@ export default (): Router => {
         })
       } catch (error) {
         console.log(error);
-        res.sendStatus(500);
+        next(error)
       }
     } catch (error) {
-      console.log(error)
-      res.sendStatus(500);
+      next(error)
     }
   })
 
 
-  router.delete("/:idemp", async function (req: Request, res: Response) {
+  router.delete("/:idemp", async function (req: Request, res: Response, next: NextFunction) {
     try {
       await sql`DELETE FROM candidatos WHERE idemp = ${req.params.idemp}`;
       res.sendStatus(200);
     } catch (error) {
-      res.sendStatus(500);
+      next(error)
     }
   })
 
-  router.put("/:idemp", async function (req: Request, res: Response) {
+  router.put("/:idemp", async function (req: Request, res: Response, next: NextFunction) {
     try {
       let request = req.body as Req.Candidatos;
       await sql`UPDATE candidatos SET ${sql(request, "idpartido", "casilla", "tipo", "idmunicipio", "iddep")}  
                 WHERE idemp = ${req.params.idemp}`;
       res.sendStatus(200);
     } catch (error) {
-      res.sendStatus(500);
-      console.log(error);
+      next(error)
     }
   })
 

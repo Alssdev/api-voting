@@ -9,7 +9,9 @@ import Voluntarios from './voluntarios/voluntarios.routes';
 import Partidos  from './partidos/partidos.routes';
 import Candidatos from './candidatos/candidatos.routes';
 import Votos  from './votos/votos.routes';
-;
+import { Request, Response, NextFunction} from 'express';
+import { PostgresError } from "postgres";
+
 export default(app: Application) =>{
   app.use('/municipios', Municipios())
   app.use('/tipos_candidatos', TipoCandidatos())
@@ -21,4 +23,19 @@ export default(app: Application) =>{
   app.use('/partidos', Partidos())
   app.use('/candidatos', Candidatos())
   app.use('/votos', Votos())
+  // error route
+  app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
+    if(error instanceof PostgresError){
+      res.status(400).json({
+        code: error.code,
+        column_name: error.column_name,
+        constraint_name: error.constraint_name,
+        message   :error.message
+
+      })
+      console.log(error);
+    }else{
+      res.sendStatus(500)
+    }
+  });
 };
