@@ -78,7 +78,9 @@ export default (): Router => {
   router.get("/:idpartido/alcaldes", async function (req: Request, res: Response) {
     try {
       try {
-        let response = await sql<Req.Candidatos[]>`SELECT * FROM candidatos WHERE idpartido = ${req.params.idpartido} AND tipo='A'`;
+        let response = await sql<Req.Candidatos[]>`SELECT * 
+                                                  FROM candidatos 
+                                                  WHERE idpartido = ${req.params.idpartido} AND tipo='A'`;
         let alcaldes: Array<any> = [];
         for (let candidato of response) {
           let municipio = await leerMunicipio(candidato.idmunicipio);
@@ -101,36 +103,14 @@ export default (): Router => {
     }
   })
 
-  router.get("/:idpartido/alcaldes", async function (req: Request, res: Response) {
-    try {
-      try {
-        let response = await sql<Req.Candidatos[]>`SELECT * FROM candidatos WHERE idpartido = ${req.params.idpartido} AND tipo='A'`;
-        let alcaldes: Array<any> = [];
-        for (let candidato of response) {
-          let municipio = await leerMunicipio(candidato.idmunicipio);
-          let ciudadano = await leerCiudadano(candidato.idemp);
-          alcaldes.push({
-            municipio: municipio,
-            ciudadano: ciudadano
-          })
-        }
-        res.json({
-          alcaldes
-        });
-      } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
-      }
-    } catch (error) {
-      console.log(error)
-      res.sendStatus(500);
-    }
-  })
 
   router.get("/:idpartido/:iddep/diputado_distrito", async function (req: Request, res: Response) {
     try {
       try {
-        let response = await sql<Req.Candidatos[]>`SELECT * FROM candidatos WHERE idpartido = ${req.params.idpartido} AND iddep = ${req.params.iddep} AND tipo = 'D'`;
+        let response = await sql<Req.Candidatos[]>`SELECT * 
+                                                  FROM candidatos 
+                                                  WHERE idpartido = ${req.params.idpartido} AND iddep = ${req.params.iddep} AND tipo = 'D' 
+                                                  ORDER BY casilla`;
         let diputados: Array<any> = [];
         for (let candidato of response) {
           let ciudadanos = await leerCiudadano(candidato.idemp);
@@ -156,7 +136,10 @@ export default (): Router => {
   router.get("/:idpartido/diputado_listado_nacional", async function (req: Request, res: Response) {
     try {
       try {
-        let response = await sql<Req.Candidatos[]>`SELECT * FROM candidatos WHERE idpartido = ${req.params.idpartido}  AND tipo = 'N'`;
+        let response = await sql<Req.Candidatos[]>`SELECT * 
+                                                  FROM candidatos 
+                                                  WHERE idpartido = ${req.params.idpartido}  AND tipo = 'N' 
+                                                  ORDER BY casilla`;
         let diputados: Array<any> = [];
         for (let candidato of response) {
           let ciudadanos = await leerCiudadano(candidato.idemp);

@@ -18,7 +18,7 @@ export default (): Router => {
 
   router.get("/", async function (req: Request, res: Response) {
     try {
-      let response = await sql<Req.Partidos[]>`SELECT * FROM partidos ORDER BY idpartido`
+      let response = await sql<Req.Partidos[]>`SELECT * FROM partidos  WHERE idemp is NOT NULL  ORDER BY idpartido`
       for(let partido of response){
         let ciudadano = await leerCiudadano(partido.idemp);
         partido.secretario=ciudadano;
@@ -34,7 +34,7 @@ export default (): Router => {
 
   router.get("/:idpartido", async function (req: Request, res: Response) {
     try {
-      let response = await sql<Req.Partidos[]>`SELECT * FROM partidos WHERE idpartido = ${req.params.idpartido}`
+      let response = await sql<Req.Partidos[]>`SELECT * FROM partidos WHERE idpartido = ${req.params.idpartido} WHERE idemp is NOT NULL`
       let ciudadano = await leerCiudadano(response[0].idemp);
       response[0].secretario=ciudadano;
       res.json({
