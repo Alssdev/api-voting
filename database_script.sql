@@ -116,11 +116,26 @@ CREATE TABLE IF NOT EXISTS votos(
 	FOREIGN KEY (idmesa) REFERENCES mesas,
 	FOREIGN KEY (tipo) REFERENCES tipos_candidatos
 );
+
 CREATE VIEW ubicacion_mesas AS
 	(SELECT M.nmesa,M.idmesa,M.cotainferior,M.cotasuperior,MM.idmunicipio
 	FROM mesas M
 	INNER JOIN establecimientos E ON M.idest = E.idest
 	INNER JOIN municipios MM ON E.idmunicipio = MM.idmunicipio);
+
+CREATE VIEW votos_presidente AS 
+(SELECT idpartido, sum(cantidad)AS conteo
+FROM votos V
+WHERE tipo = 'P'
+GROUP BY idpartido
+ORDER BY sum(cantidad));
+
+CREATE VIEW votos_alcaldes AS 
+(SELECT *
+FROM votos
+WHERE tipo = 'A');
+
+
 
 /* test data */
 INSERT INTO departamentos (nombre)

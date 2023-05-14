@@ -47,6 +47,7 @@ export default (): Router => {
     }
   })
 
+
   router.get("/:idpartido/:idmesa/:tipo", async function (req: Request, res: Response, next: NextFunction) {
     try {
       let response = await sql<Req.Votos[]>`SELECT * FROM votos 
@@ -60,8 +61,7 @@ export default (): Router => {
       res.json({
         list: response,
       })
-    } catch (error) {
-      console.log(error)
+    } catch (error) { 
       next(error)
     }
   })
@@ -84,7 +84,6 @@ export default (): Router => {
       res.sendStatus(200);
     } catch (error) {
       next(error)
-      console.log(error);
     }
   })
 

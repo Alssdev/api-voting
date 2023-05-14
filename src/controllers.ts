@@ -9,6 +9,7 @@ import Voluntarios from './voluntarios/voluntarios.routes';
 import Partidos  from './partidos/partidos.routes';
 import Candidatos from './candidatos/candidatos.routes';
 import Votos  from './votos/votos.routes';
+import Reportes from './reportes/reportes.routes'
 import { Request, Response, NextFunction} from 'express';
 import { PostgresError } from "postgres";
 
@@ -23,6 +24,7 @@ export default(app: Application) =>{
   app.use('/partidos', Partidos())
   app.use('/candidatos', Candidatos())
   app.use('/votos', Votos())
+  app.use('/reportes', Reportes())
   // error route
   app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
     if(error instanceof PostgresError){
