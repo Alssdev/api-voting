@@ -193,9 +193,27 @@ export default (): Router => {
   router.get("/minorias_diputado_nacional", async function (req: Request, res: Response, next: NextFunction) {
     try {
       let response = await sql`SELECT idpartido,  TRUNC((conteo/(SELECT * FROM cifra_repartidora_nacional)), 0)  AS cantidad_diputados 
-                              FROM minorias_nacional`
+                              FROM minorias_nacional`;
+                              
+
+      let diputados: Req.Candidatos[] = [];
+      for (const item of response) {
+        const idpartido = item.idpartido;
+        const cantidad = item.cantidad_diputados;
+
+        const list = <Req.Candidatos[]>await sql`
+          SELECT P.idpartido, C.idemp, P.logo, P.nombre, P.acronimo, I.nombres, I.apellidos FROM Candidatos C
+          INNER JOIN Partidos P ON C.idpartido = P.idpartido
+          INNER JOIN Ciudadanos I ON C.idemp = I.idemp
+          WHERE C.tipo='D' AND P.idpartido=${idpartido}
+          ORDER BY C.casilla ASC
+          LIMIT ${cantidad};
+        `;
+        
+        diputados = diputados.concat(list);
+      }
       res.json({
-        list: response,
+        list: diputados,
       })
     } catch (error) {
       next(error)
