@@ -42,8 +42,8 @@ export default (): Router => {
       let idblancos = await encontrarBlanco();
       let idnulos = await encontrarNulo();
 
-      let nulos = await sql`SELECT sum(cantidad) FROM votos WHERE tipo = 'P' AND idpartido = ${idnulos} `
-      let blancos = await sql`SELECT sum(cantidad) FROM votos WHERE tipo = 'P' AND idpartido = ${idblancos} `
+      let nulos = (await sql`SELECT sum(cantidad) FROM votos WHERE tipo = 'P' AND idpartido = ${idnulos}`)[0]
+      let blancos = (await sql`SELECT sum(cantidad) FROM votos WHERE tipo = 'P' AND idpartido = ${idblancos} `)[0]
       res.json({
         list: response,
         nulos,
@@ -58,14 +58,27 @@ export default (): Router => {
     try {
       let response = await sql`SELECT I.nombres, I.apellidos, P.nombre, V.conteo
       FROM (SELECT V.idpartido, sum(V.cantidad) AS conteo
-          FROM votos V, establecimientos E, mesas M
-          WHERE V.tipo= 'A' AND V.idmesa = M.idmesa AND E.idest = M.idest AND E.idmunicipio = ${req.params.idmunicipio}
+          FROM votos V, ubicacion_mesas U
+          WHERE V.tipo= 'A' AND V.idmesa = U.idmesa AND U.idmunicipio = ${req.params.idmunicipio}
           GROUP BY V.idpartido) V, candidatos C, ciudadanos I, partidos P 
-      WHERE C.idemp = I.idemp AND C.idpartido = V.idpartido AND C.idpartido = P.idpartido AND C.tipo = 'A'
-      ORDER BY V.conteo DESC `
+      WHERE C.idemp = I.idemp AND C.idpartido = V.idpartido AND C.idpartido = P.idpartido AND C.tipo = 'A' AND C.idmunicipio = ${req.params.idmunicipio}
+      ORDER BY V.conteo DESC 
+      `
+
+      let idblancos = await encontrarBlanco();
+      let idnulos = await encontrarNulo();
+
+      let nulos = (await sql`SELECT sum(V.cantidad) AS conteo
+                            FROM votos V, ubicacion_mesas U
+                            WHERE V.tipo= 'A' AND V.idmesa = U.idmesa AND U.idmunicipio = 1 AND idpartido = ${idnulos} `)[0]
+      let blancos = (await sql`SELECT sum(V.cantidad) AS conteo
+                              FROM votos V, ubicacion_mesas U
+                              WHERE V.tipo= 'A' AND V.idmesa = U.idmesa AND U.idmunicipio = 1 AND idpartido = ${idblancos} `)[0]
 
       res.json({
-        list: response
+        list: response,
+        nulos,
+        blancos
       })
     } catch (error) {
       next(error)
@@ -78,8 +91,15 @@ export default (): Router => {
                                 FROM votos V, partidos P 
                                 WHERE V.tipo = 'N' AND V.idpartido = P.idpartido
                                 GROUP BY V.idpartido, P.nombre`
+      let idblancos = await encontrarBlanco();
+      let idnulos = await encontrarNulo();
+
+      let nulos = (await sql`SELECT sum(cantidad) FROM votos WHERE tipo = 'N' AND idpartido = ${idnulos} `)[0]
+      let blancos = (await sql`SELECT sum(cantidad) FROM votos WHERE tipo = 'N' AND idpartido = ${idblancos} `)[0]
       res.json({
-        list: response
+        list: response,
+        nulos,
+        blancos
       })
     } catch (error) {
       next(error)
@@ -88,18 +108,20 @@ export default (): Router => {
 
   router.get("/:iddep/votos_diputado_distrito", async function (req: Request, res: Response, next: NextFunction) {
     try {
-      let response = await sql`SELECT P.nombre, V.conteo
-                                FROM (SELECT V.idpartido, sum(V.cantidad) AS conteo 
-                                    FROM votos V
-                                    WHERE tipo = 'D' AND idmesa IN (SELECT  M.idmesa
-                                                    FROM municipios U, establecimientos E, mesas M
-                                                    WHERE U.idmunicipio = E.idmunicipio AND U.iddep = ${req.params.iddep} AND E.idest = M.idest)
-                                    GROUP BY V.idpartido
-                                ) V,  partidos P 
-                                WHERE  V.idpartido = P.idpartido 
-                                ORDER BY V.conteo DESC`
+      let response = await sql`SELECT P.nombre, sum (V.cantidad)
+                                FROM votos V, partidos P 
+                                WHERE V.tipo = 'D' AND V.idpartido = P.idpartido
+                                GROUP BY V.idpartido, P.nombre`
+
+      let idblancos = await encontrarBlanco();
+      let idnulos = await encontrarNulo();
+
+      let nulos = (await sql`SELECT sum(cantidad) FROM votos WHERE tipo = 'D' AND idpartido = ${idnulos} `)[0]
+      let blancos = (await sql`SELECT sum(cantidad) FROM votos WHERE tipo = 'D' AND idpartido = ${idblancos} `)[0]
       res.json({
-        list: response
+        list: response,
+        nulos,
+        blancos
       })
     } catch (error) {
       next(error)
@@ -126,9 +148,9 @@ ALCALDE:
 
 SELECT I.nombres, I.apellidos, P.nombre, V.conteo
 FROM (SELECT V.idpartido, sum(V.cantidad) AS conteo
-		FROM votos V, establecimientos E, mesas M
-		WHERE V.tipo= 'A' AND V.idmesa =M.idmesa AND E.idest = M.idest AND E.idmunicipio = 1
-		GROUP BY V.idpartido) V, candidatos C, ciudadanos I, partidos P 
+    FROM votos V, establecimientos E, mesas M
+    WHERE V.tipo= 'A' AND V.idmesa =M.idmesa AND E.idest = M.idest AND E.idmunicipio = 1
+    GROUP BY V.idpartido) V, candidatos C, ciudadanos I, partidos P 
 WHERE C.idemp = I.idemp AND C.idpartido = V.idpartido AND C.idpartido = P.idpartido AND C.tipo = 'A'
 ORDER BY V.conteo DESC
 
@@ -162,9 +184,9 @@ GROUP BY V.idpartido, P.nombre
 // Por partido y municipio
 SELECT P.nombre, V.conteo
 FROM (SELECT V.idpartido, sum(V.cantidad) AS conteo
-		FROM votos V, establecimientos E, mesas M
-		WHERE V.tipo= 'N' AND V.idmesa = M.idmesa AND E.idest = M.idest AND E.idmunicipio = 1
-		GROUP BY V.idpartido) V, partidos P 
+    FROM votos V, establecimientos E, mesas M
+    WHERE V.tipo= 'N' AND V.idmesa = M.idmesa AND E.idest = M.idest AND E.idmunicipio = 1
+    GROUP BY V.idpartido) V, partidos P 
 WHERE  V.idpartido = P.idpartido 
 ORDER BY V.conteo DESC
  */
