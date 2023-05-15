@@ -21,10 +21,26 @@ export default (): Router => {
 
   router.get("/:idmesa/:tipo/mesa_tipo", async function (req: Request, res: Response, next: NextFunction) {
     try {
-      let response = await sql<Req.Votos[]>`SELECT P.nombre, V.cantidad, P.idpartido, P.logo, P.acronimo FROM votos V, Partidos P 
-                                            WHERE P.idpartido = V.idpartido AND V.idmesa = ${req.params.idmesa} AND V.tipo = ${req.params.tipo} `
+      let response = await sql<Req.Votos[]>`SELECT P.logo,P.nombre, P.acronimo, V.cantidad FROM votos V, Partidos P 
+      WHERE P.idpartido = V.idpartido
+      AND V.idmesa = ${req.params.idmesa}
+      AND V.tipo = ${req.params.tipo}
+      AND idemp IS NOT NULL`;
+
+      const nulos = (await sql<Req.Votos[]>`SELECT V.cantidad FROM votos V 
+      WHERE V.idmesa = ${req.params.idmesa}
+      AND V.tipo = ${req.params.tipo}
+      AND idpartido = ${await encontrarNulo()}`)[0].cantidad || 0;
+
+      const blancos = (await sql<Req.Votos[]>`SELECT V.cantidad FROM votos V 
+      WHERE V.idmesa = ${req.params.idmesa}
+      AND V.tipo = ${req.params.tipo}
+      AND idpartido = ${await encontrarBlanco()}`)[0].cantidad || 0;
+
       res.json({
-        list: response
+        list: response,
+        nulos,
+        blancos
       })
     } catch (error) {
       next(error)

@@ -8,7 +8,7 @@
     "build": "npx tsc",
     "start": "node build/main.js",
     "dev": "concurrently \"npx tsc --watch\" \"nodemon -q build/main.js\"",
-    "dev-aless": "PASSWORD=password concurrently \"npx tsc --watch\" \"nodemon -q build/main.js\""
+    "devAless": "PASSWORD=password concurrently \"npx tsc --watch\" \"nodemon -q build/main.js\""
   },
   "repository": {
     "type": "git",
