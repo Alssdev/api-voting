@@ -36,7 +36,7 @@ export default (): Router => {
       let response = await sql`SELECT I.nombres, I.apellidos, P.nombre,  sum (V.cantidad)as conteo, P.logo, P.idpartido, C.idemp
       FROM votos V , candidatos C, ciudadanos I, partidos P 
       WHERE C.idemp = I.idemp AND C.idpartido = V.idpartido AND C.idpartido = P.idpartido AND C.tipo = 'P' AND V.tipo = 'P'
-      GROUP BY V.idpartido, P.nombre,I.nombres, I.apellidos
+      GROUP BY V.idpartido, P.nombre,I.nombres, I.apellidos, P.logo, P.idpartido, C.idemp
       ORDER BY sum (V.cantidad) DESC `;
 
       let idblancos = await encontrarBlanco();
@@ -87,10 +87,10 @@ export default (): Router => {
 
   router.get("/votos_diputado_nacional", async function (req: Request, res: Response, next: NextFunction) {
     try {
-      let response = await sql`SELECT P.nombre, sum (V.cantidad), P.logo, P.idpartido
+      let response = await sql`SELECT P.nombre, sum (V.cantidad) as conteo, P.logo, P.idpartido
                                 FROM votos V, partidos P 
-                                WHERE V.tipo = 'N' AND V.idpartido = P.idpartido
-                                GROUP BY V.idpartido, P.nombre`
+                                WHERE V.tipo = 'N' AND V.idpartido = P.idpartido AND P.idemp  null
+                                GROUP BY V.idpartido, P.nombre, P.logo, P.idpartido`
       let idblancos = await encontrarBlanco();
       let idnulos = await encontrarNulo();
 
@@ -108,10 +108,10 @@ export default (): Router => {
 
   router.get("/:iddep/votos_diputado_distrito", async function (req: Request, res: Response, next: NextFunction) {
     try {
-      let response = await sql`SELECT P.nombre, sum (V.cantidad), P.logo, P.idpartido
+      let response = await sql`SELECT P.nombre, sum (V.cantidad) as conteo, P.logo, P.idpartido
                                 FROM votos V, partidos P 
-                                WHERE V.tipo = 'D' AND V.idpartido = P.idpartido
-                                GROUP BY V.idpartido, P.nombre`
+                                WHERE V.tipo = 'D' AND V.idpartido = P.idpartido AND P.idemp <> null
+                                GROUP BY V.idpartido, P.nombre, P.logo, P.idpartido`
 
       let idblancos = await encontrarBlanco();
       let idnulos = await encontrarNulo();
@@ -128,6 +128,58 @@ export default (): Router => {
     }
   })
 
+  router.get("/minorias_diputado_distrito", async function (req: Request, res: Response, next: NextFunction) {
+    try {
+      let response = await sql`SELECT P.nombre, sum (V.cantidad) as conteo, P.logo, P.idpartido
+                                FROM votos V, partidos P 
+                                WHERE V.tipo = 'D' AND V.idpartido = P.idpartido AND P.idemp <> null
+                                GROUP BY V.idpartido, P.nombre, P.logo, P.idpartido`
+
+      let idblancos = await encontrarBlanco();
+      let idnulos = await encontrarNulo();
+
+      let nulos = (await sql`SELECT sum(cantidad) FROM votos WHERE tipo = 'D' AND idpartido = ${idnulos} `)[0]
+      let blancos = (await sql`SELECT sum(cantidad) FROM votos WHERE tipo = 'D' AND idpartido = ${idblancos} `)[0]
+      res.json({
+        list: response,
+        nulos,
+        blancos
+      })
+    } catch (error) {
+      next(error)
+    }
+  })
+
+  router.get("/minorias_diputado_nacional", async function (req: Request, res: Response, next: NextFunction) {
+    try {
+      let response = await sql`SELECT idpartido,  TRUNC((conteo/(SELECT * FROM cifra_repartidora_nacional)), 0)  AS cantidad_diputados 
+                              FROM minorias_nacional`
+      res.json({
+        list: response,
+      })
+    } catch (error) {
+      next(error)
+    }
+  })
+
+  router.get("/:iddep/minorias_diputado_distrito", async function (req: Request, res: Response, next: NextFunction) {
+    try {
+      let response = await sql`SELECT idpartido, TRUNC((conteo/(SELECT *FROM (
+                                                                              (SELECT conteo FROM minorias_distrito WHERE iddep = ${req.params.iddep})
+                                                                              UNION
+                                                                              (SELECT divisor2 FROM minorias_distrito WHERE iddep = ${req.params.iddep})
+                                                                              UNION
+                                                                              (SELECT divisor3 FROM minorias_distrito WHERE iddep = ${req.params.iddep})) cifras
+                                                                        ORDER BY conteo DESC limit 1 OFFSET 2)), 0) AS cantidad_diputados 
+                                                                        FROM minorias_distrito
+                                                                        WHERE iddep = ${req.params.iddep}`
+      res.json({
+        list: response,
+      })
+    } catch (error) {
+      next(error)
+    }
+  })
 
 
   return router;

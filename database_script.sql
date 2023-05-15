@@ -130,9 +130,36 @@ CREATE TABLE IF NOT EXISTS votos(
 );
 
 CREATE VIEW ubicacion_mesas AS (
-SELECT M.nmesa, M.idmesa, M.cotaInferior, M.cotaSuperior, MM.idmunicipio FROM mesas M
-	INNER JOIN establecimientos E ON M.idest = E.idest
-	INNER JOIN municipios MM ON E.idmunicipio = MM.idmunicipio
+	SELECT M.nmesa, M.idmesa, M.cotaInferior, M.cotaSuperior, MM.idmunicipio, MM.iddep FROM mesas M
+		INNER JOIN establecimientos E ON M.idest = E.idest
+		INNER JOIN municipios MM ON E.idmunicipio = MM.idmunicipio
+);
+
+/*Proceso  minorias diputados de listado distrito*/
+CREATE VIEW minorias_distrito AS (
+	SELECT P.idpartido, sum (V.cantidad) as conteo,TRUNC((sum (V.cantidad)/2),0)  as divisor2, 
+										TRUNC((sum (V.cantidad)/3),0) as divisor3, U.iddep
+	FROM votos V, partidos P, ubicacion_mesas U 
+	WHERE V.tipo = 'D' AND V.idpartido = P.idpartido AND P.idemp IS NOT null AND U.idmesa= V.idmesa 
+	GROUP BY V.idpartido, P.idpartido,  V.cantidad, U.iddep
+	ORDER BY conteo DESC
+);
+
+/*Proceso  minorias diputados de nacional*/
+CREATE VIEW minorias_nacional AS (SELECT P.idpartido, sum (V.cantidad) as conteo,TRUNC((sum (V.cantidad)/2),0)  as divisor2, TRUNC((sum (V.cantidad)/3),0) as divisor3
+	FROM votos V, partidos P 
+	WHERE V.tipo = 'N' AND V.idpartido = P.idpartido AND P.idemp IS NOT null
+	GROUP BY V.idpartido, P.idpartido,  V.cantidad
+	ORDER BY conteo DESC
+);
+
+CREATE VIEW cifra_repartidora_nacional AS (SELECT *
+	FROM ((SELECT conteo FROM minorias_nacional)
+			UNION
+			(SELECT divisor2 FROM minorias_nacional)
+			UNION
+			(SELECT divisor3 FROM minorias_nacional)) cifras
+	ORDER BY conteo DESC limit 1 OFFSET 2
 );
 
 /* test data */
@@ -180,3 +207,16 @@ INSERT INTO partidos(nombre, acronimo, logo, idpartido)
 VALUES ('nulo', 'NULO', 'n', 100), ('blanco', 'BLA', 'b', 101);
 
 SELECT * FROM partidos;
+
+
+
+
+
+
+CREATE VIEW ubicacion_mesas AS (
+SELECT M.nmesa, M.idmesa, M.cotaInferior, M.cotaSuperior, MM.idmunicipio FROM mesas M
+	INNER JOIN establecimientos E ON M.idest = E.idest
+	INNER JOIN municipios MM ON E.idmunicipio = MM.idmunicipio
+);
+
+
