@@ -168,34 +168,11 @@ export default (): Router => {
     }
   });
 
-  router.get("/minorias_diputado_distrito", async function (req: Request, res: Response, next: NextFunction) {
-    try {
-      let response = await sql`SELECT P.nombre, sum (V.cantidad) as conteo, P.logo, P.idpartido
-                                FROM votos V, partidos P 
-                                WHERE V.tipo = 'D' AND V.idpartido = P.idpartido AND P.idemp <> null
-                                GROUP BY V.idpartido, P.nombre, P.logo, P.idpartido`
-
-      let idblancos = await encontrarBlanco();
-      let idnulos = await encontrarNulo();
-
-      let nulos = (await sql`SELECT sum(cantidad) FROM votos WHERE tipo = 'D' AND idpartido = ${idnulos} `)[0]
-      let blancos = (await sql`SELECT sum(cantidad) FROM votos WHERE tipo = 'D' AND idpartido = ${idblancos} `)[0]
-      res.json({
-        list: response,
-        nulos,
-        blancos
-      })
-    } catch (error) {
-      next(error)
-    }
-  });
-
   router.get("/minorias_diputado_nacional", async function (req: Request, res: Response, next: NextFunction) {
     try {
       let response = await sql`SELECT idpartido,  TRUNC((conteo/(SELECT * FROM cifra_repartidora_nacional)), 0)  AS cantidad_diputados 
                               FROM minorias_nacional`;
                               
-
       let diputados: Req.Candidatos[] = [];
       for (const item of response) {
         const idpartido = item.idpartido;
@@ -205,7 +182,7 @@ export default (): Router => {
           SELECT P.idpartido, C.idemp, P.logo, P.nombre, P.acronimo, I.nombres, I.apellidos FROM Candidatos C
           INNER JOIN Partidos P ON C.idpartido = P.idpartido
           INNER JOIN Ciudadanos I ON C.idemp = I.idemp
-          WHERE C.tipo='D' AND P.idpartido=${idpartido}
+          WHERE C.tipo='N' AND P.idpartido=${idpartido}
           ORDER BY C.casilla ASC
           LIMIT ${cantidad};
         `;
@@ -230,9 +207,26 @@ export default (): Router => {
                                                                               (SELECT divisor3 FROM minorias_distrito WHERE iddep = ${req.params.iddep})) cifras
                                                                         ORDER BY conteo DESC limit 1 OFFSET 2)), 0) AS cantidad_diputados 
                                                                         FROM minorias_distrito
-                                                                        WHERE iddep = ${req.params.iddep}`
+                                                                        WHERE iddep = ${req.params.iddep}`;
+      
+      let diputados: Req.Candidatos[] = [];
+      for (const item of response) {
+        const idpartido = item.idpartido;
+        const cantidad = item.cantidad_diputados;
+
+        const list = <Req.Candidatos[]>await sql`
+          SELECT P.idpartido, C.idemp, P.logo, P.nombre, P.acronimo, I.nombres, I.apellidos FROM Candidatos C
+          INNER JOIN Partidos P ON C.idpartido = P.idpartido
+          INNER JOIN Ciudadanos I ON C.idemp = I.idemp
+          WHERE C.tipo='D' AND P.idpartido=${idpartido}
+          ORDER BY C.casilla ASC
+          LIMIT ${cantidad};
+        `;
+        
+        diputados = diputados.concat(list);
+      }
       res.json({
-        list: response,
+        list: diputados,
       })
     } catch (error) {
       next(error)
