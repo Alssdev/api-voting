@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import sql from "./../database"
-import { insertarVoto, leerMesa, leerTipoCandidato, leerPartido, encontrarNulo, encontrarBlanco } from '../helpers/funciones';
+import { encontrarNulo, encontrarBlanco } from '../helpers/funciones';
 
 
 export default (): Router => {
@@ -37,9 +37,17 @@ export default (): Router => {
       FROM votos V , candidatos C, ciudadanos I, partidos P 
       WHERE C.idemp = I.idemp AND C.idpartido = V.idpartido AND C.idpartido = P.idpartido AND C.tipo = 'P' AND V.tipo = 'P'
       GROUP BY V.idpartido, P.nombre,I.nombres, I.apellidos
-      ORDER BY sum (V.cantidad) DESC `
+      ORDER BY sum (V.cantidad) DESC `;
+
+      let idblancos = await encontrarBlanco();
+      let idnulos = await encontrarNulo();
+
+      let nulos = await sql`SELECT sum(cantidad) FROM votos WHERE tipo = 'P' AND idpartido = ${idnulos} `
+      let blancos = await sql`SELECT sum(cantidad) FROM votos WHERE tipo = 'P' AND idpartido = ${idblancos} `
       res.json({
-        list: response
+        list: response,
+        nulos,
+        blancos
       })
     } catch (error) {
       next(error)
@@ -55,6 +63,7 @@ export default (): Router => {
           GROUP BY V.idpartido) V, candidatos C, ciudadanos I, partidos P 
       WHERE C.idemp = I.idemp AND C.idpartido = V.idpartido AND C.idpartido = P.idpartido AND C.tipo = 'A'
       ORDER BY V.conteo DESC `
+
       res.json({
         list: response
       })
