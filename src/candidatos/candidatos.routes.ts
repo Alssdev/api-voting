@@ -63,10 +63,10 @@ export default (): Router => {
       let responseV = await sql`SELECT * FROM candidatos WHERE idpartido = ${req.params.idpartido} AND tipo ='V'`
       res.json({
         presidente: {
-          idemp: responseP[0].idemp,
+          idemp: responseP.length > 0 ? responseP[0].idemp : 0,
         },
         vicepresidente: {
-          idemp: responseV[0].idemp,
+          idemp: responseV.length > 0 ? responseV[0].idemp : 0,
         }
       })
     } catch (error) {
@@ -77,7 +77,7 @@ export default (): Router => {
   router.get("/:idpartido/alcaldes", async function (req: Request, res: Response, next: NextFunction) {
     try {
       try {
-        let response = await sql<Req.Candidatos[]>`SELECT * 
+        let response = await sql<Req.Candidatos[]>`SELECT *
                                                   FROM candidatos 
                                                   WHERE idpartido = ${req.params.idpartido} AND tipo='A'`;
         let alcaldes: Array<any> = [];

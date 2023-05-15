@@ -34,7 +34,7 @@ export default (): Router => {
 
   router.get("/:idpartido", async function (req: Request, res: Response, next: NextFunction) {
     try {
-      let response = await sql<Req.Partidos[]>`SELECT * FROM partidos WHERE idpartido = ${req.params.idpartido} WHERE idemp is NOT NULL`
+      let response = await sql<Req.Partidos[]>`SELECT * FROM partidos WHERE idpartido = ${req.params.idpartido} AND idemp IS NOT NULL`
       let ciudadano = await leerCiudadano(response[0].idemp);
       response[0].secretario=ciudadano;
       res.json({
