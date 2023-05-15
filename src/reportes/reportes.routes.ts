@@ -17,7 +17,7 @@ export default (): Router => {
       console.log(error);
       next(error)
     }
-  })
+  });
 
   router.get("/:idmesa/:tipo/mesa_tipo", async function (req: Request, res: Response, next: NextFunction) {
     try {
@@ -45,13 +45,18 @@ export default (): Router => {
     } catch (error) {
       next(error)
     }
-  })
+  });
 
   router.get("/votos_presidente", async function (req: Request, res: Response, next: NextFunction) {
     try {
-      let response = await sql`SELECT I.nombres, I.apellidos, P.nombre,  sum (V.cantidad)as conteo, P.logo, P.idpartido, P.acronimo, C.idemp
-      FROM votos V , candidatos C, ciudadanos I, partidos P 
-      WHERE C.idemp = I.idemp AND C.idpartido = V.idpartido AND C.idpartido = P.idpartido AND C.tipo = 'P' AND V.tipo = 'P'
+      let response = await sql`SELECT I.nombres, I.apellidos, P.nombre, sum (V.cantidad)as conteo, P.logo, P.idpartido, P.acronimo, C.idemp
+      FROM votos V, candidatos C, ciudadanos I, partidos P 
+      WHERE C.idemp = I.idemp
+      AND C.idpartido = V.idpartido
+      AND C.idpartido = P.idpartido
+      AND C.tipo = 'P'
+      AND V.tipo = 'P'
+      AND P.idemp IS NOT NULL
       GROUP BY V.idpartido, P.nombre,I.nombres, I.apellidos, P.logo, P.idpartido, C.idemp, P.acronimo
       ORDER BY sum (V.cantidad) DESC `;
 
@@ -68,16 +73,27 @@ export default (): Router => {
     } catch (error) {
       next(error)
     }
-  })
+  });
 
   router.get("/:idmunicipio/votos_alcalde", async function (req: Request, res: Response, next: NextFunction) {
     try {
-      let response = await sql`SELECT I.nombres, I.apellidos, P.nombre, V.conteo, P.logo, P.idpartido, C.idemp, P.acronimo
+      let response = await sql`SELECT
+      I.nombres,
+      I.apellidos,
+      P.nombre,
+      V.conteo,
+      P.logo,
+      P.idpartido,
+      C.idemp, P.acronimo
       FROM (SELECT V.idpartido, sum(V.cantidad) AS conteo
-          FROM votos V, ubicacion_mesas U
-          WHERE V.tipo= 'A' AND V.idmesa = U.idmesa AND U.idmunicipio = ${req.params.idmunicipio}
-          GROUP BY V.idpartido) V, candidatos C, ciudadanos I, partidos P 
-      WHERE C.idemp = I.idemp AND C.idpartido = V.idpartido AND C.idpartido = P.idpartido AND C.tipo = 'A' AND C.idmunicipio = ${req.params.idmunicipio}
+            FROM votos V, ubicacion_mesas U
+            WHERE V.tipo= 'A' AND V.idmesa = U.idmesa AND U.idmunicipio = ${req.params.idmunicipio}
+            GROUP BY V.idpartido) V, candidatos C, ciudadanos I, partidos P 
+      WHERE C.idemp = I.idemp
+      AND C.idpartido = V.idpartido
+      AND C.idpartido = P.idpartido
+      AND C.tipo = 'A'
+      AND C.idmunicipio = ${req.params.idmunicipio}
       ORDER BY V.conteo DESC 
       `
 
@@ -99,14 +115,18 @@ export default (): Router => {
     } catch (error) {
       next(error)
     }
-  })
+  });
 
   router.get("/votos_diputado_nacional", async function (req: Request, res: Response, next: NextFunction) {
     try {
-      let response = await sql`SELECT P.nombre, sum (V.cantidad) as conteo, P.logo, P.idpartido, P.acronimo
-                                FROM votos V, partidos P 
-                                WHERE V.tipo = 'N' AND V.idpartido = P.idpartido AND P.idemp  null
-                                GROUP BY V.idpartido, P.nombre, P.logo, P.idpartido, P.acronimo`
+      let response = await sql`SELECT P.nombre,
+      sum (V.cantidad) as conteo,
+      P.logo,
+      P.idpartido,
+      P.acronimo
+      FROM votos V, partidos P 
+      WHERE V.tipo = 'N' AND V.idpartido = P.idpartido AND P.idemp IS NOT NULl
+      GROUP BY V.idpartido, P.nombre, P.logo, P.idpartido, P.acronimo`
       let idblancos = await encontrarBlanco();
       let idnulos = await encontrarNulo();
 
@@ -120,14 +140,18 @@ export default (): Router => {
     } catch (error) {
       next(error)
     }
-  })
+  });
 
   router.get("/:iddep/votos_diputado_distrito", async function (req: Request, res: Response, next: NextFunction) {
     try {
-      let response = await sql`SELECT P.nombre, sum (V.cantidad) as conteo, P.logo, P.idpartido, P.acronimo
-                                FROM votos V, partidos P 
-                                WHERE V.tipo = 'D' AND V.idpartido = P.idpartido AND P.idemp <> null
-                                GROUP BY V.idpartido, P.nombre, P.logo, P.idpartido, P.acronimo`
+      let response = await sql`SELECT
+      P.nombre,
+      sum (V.cantidad) as conteo,
+      P.logo, P.idpartido,
+      P.acronimo
+      FROM votos V, partidos P 
+      WHERE V.tipo = 'D' AND V.idpartido = P.idpartido AND P.idemp IS NOT NULL
+      GROUP BY V.idpartido, P.nombre, P.logo, P.idpartido, P.acronimo`
 
       let idblancos = await encontrarBlanco();
       let idnulos = await encontrarNulo();
@@ -142,7 +166,7 @@ export default (): Router => {
     } catch (error) {
       next(error)
     }
-  })
+  });
 
   router.get("/minorias_diputado_distrito", async function (req: Request, res: Response, next: NextFunction) {
     try {
@@ -164,7 +188,7 @@ export default (): Router => {
     } catch (error) {
       next(error)
     }
-  })
+  });
 
   router.get("/minorias_diputado_nacional", async function (req: Request, res: Response, next: NextFunction) {
     try {
@@ -176,7 +200,7 @@ export default (): Router => {
     } catch (error) {
       next(error)
     }
-  })
+  });
 
   router.get("/:iddep/minorias_diputado_distrito", async function (req: Request, res: Response, next: NextFunction) {
     try {
@@ -195,8 +219,7 @@ export default (): Router => {
     } catch (error) {
       next(error)
     }
-  })
-
+  });
 
   return router;
 };
