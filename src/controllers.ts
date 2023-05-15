@@ -39,5 +39,8 @@ export default(app: Application) =>{
     }else{
       res.sendStatus(500)
     }
+
+    console.log(error);
+    
   });
 };
