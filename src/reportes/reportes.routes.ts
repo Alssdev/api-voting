@@ -33,7 +33,7 @@ export default (): Router => {
 
   router.get("/votos_presidente", async function (req: Request, res: Response, next: NextFunction) {
     try {
-      let response = await sql`SELECT I.nombres, I.apellidos, P.nombre,  sum (V.cantidad)as conteo
+      let response = await sql`SELECT I.nombres, I.apellidos, P.nombre,  sum (V.cantidad)as conteo, P.logo, P.idpartido, C.idemp
       FROM votos V , candidatos C, ciudadanos I, partidos P 
       WHERE C.idemp = I.idemp AND C.idpartido = V.idpartido AND C.idpartido = P.idpartido AND C.tipo = 'P' AND V.tipo = 'P'
       GROUP BY V.idpartido, P.nombre,I.nombres, I.apellidos
@@ -56,7 +56,7 @@ export default (): Router => {
 
   router.get("/:idmunicipio/votos_alcalde", async function (req: Request, res: Response, next: NextFunction) {
     try {
-      let response = await sql`SELECT I.nombres, I.apellidos, P.nombre, V.conteo
+      let response = await sql`SELECT I.nombres, I.apellidos, P.nombre, V.conteo, P.logo, P.idpartido, C.idemp
       FROM (SELECT V.idpartido, sum(V.cantidad) AS conteo
           FROM votos V, ubicacion_mesas U
           WHERE V.tipo= 'A' AND V.idmesa = U.idmesa AND U.idmunicipio = ${req.params.idmunicipio}
@@ -87,7 +87,7 @@ export default (): Router => {
 
   router.get("/votos_diputado_nacional", async function (req: Request, res: Response, next: NextFunction) {
     try {
-      let response = await sql`SELECT P.nombre, sum (V.cantidad)
+      let response = await sql`SELECT P.nombre, sum (V.cantidad), P.logo, P.idpartido
                                 FROM votos V, partidos P 
                                 WHERE V.tipo = 'N' AND V.idpartido = P.idpartido
                                 GROUP BY V.idpartido, P.nombre`
@@ -108,7 +108,7 @@ export default (): Router => {
 
   router.get("/:iddep/votos_diputado_distrito", async function (req: Request, res: Response, next: NextFunction) {
     try {
-      let response = await sql`SELECT P.nombre, sum (V.cantidad)
+      let response = await sql`SELECT P.nombre, sum (V.cantidad), P.logo, P.idpartido
                                 FROM votos V, partidos P 
                                 WHERE V.tipo = 'D' AND V.idpartido = P.idpartido
                                 GROUP BY V.idpartido, P.nombre`
