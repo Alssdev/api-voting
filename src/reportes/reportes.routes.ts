@@ -21,7 +21,7 @@ export default (): Router => {
 
   router.get("/:idmesa/:tipo/mesa_tipo", async function (req: Request, res: Response, next: NextFunction) {
     try {
-      let response = await sql<Req.Votos[]>`SELECT P.nombre, V.cantidad FROM votos V, Partidos P 
+      let response = await sql<Req.Votos[]>`SELECT P.nombre, V.cantidad, P.idpartido, P.logo, P.acronimo FROM votos V, Partidos P 
                                             WHERE P.idpartido = V.idpartido AND V.idmesa = ${req.params.idmesa} AND V.tipo = ${req.params.tipo} `
       res.json({
         list: response
@@ -33,10 +33,10 @@ export default (): Router => {
 
   router.get("/votos_presidente", async function (req: Request, res: Response, next: NextFunction) {
     try {
-      let response = await sql`SELECT I.nombres, I.apellidos, P.nombre,  sum (V.cantidad)as conteo, P.logo, P.idpartido, C.idemp
+      let response = await sql`SELECT I.nombres, I.apellidos, P.nombre,  sum (V.cantidad)as conteo, P.logo, P.idpartido, P.acronimo, C.idemp
       FROM votos V , candidatos C, ciudadanos I, partidos P 
       WHERE C.idemp = I.idemp AND C.idpartido = V.idpartido AND C.idpartido = P.idpartido AND C.tipo = 'P' AND V.tipo = 'P'
-      GROUP BY V.idpartido, P.nombre,I.nombres, I.apellidos, P.logo, P.idpartido, C.idemp
+      GROUP BY V.idpartido, P.nombre,I.nombres, I.apellidos, P.logo, P.idpartido, C.idemp, P.acronimo
       ORDER BY sum (V.cantidad) DESC `;
 
       let idblancos = await encontrarBlanco();
@@ -56,7 +56,7 @@ export default (): Router => {
 
   router.get("/:idmunicipio/votos_alcalde", async function (req: Request, res: Response, next: NextFunction) {
     try {
-      let response = await sql`SELECT I.nombres, I.apellidos, P.nombre, V.conteo, P.logo, P.idpartido, C.idemp
+      let response = await sql`SELECT I.nombres, I.apellidos, P.nombre, V.conteo, P.logo, P.idpartido, C.idemp, P.acronimo
       FROM (SELECT V.idpartido, sum(V.cantidad) AS conteo
           FROM votos V, ubicacion_mesas U
           WHERE V.tipo= 'A' AND V.idmesa = U.idmesa AND U.idmunicipio = ${req.params.idmunicipio}
@@ -87,10 +87,10 @@ export default (): Router => {
 
   router.get("/votos_diputado_nacional", async function (req: Request, res: Response, next: NextFunction) {
     try {
-      let response = await sql`SELECT P.nombre, sum (V.cantidad) as conteo, P.logo, P.idpartido
+      let response = await sql`SELECT P.nombre, sum (V.cantidad) as conteo, P.logo, P.idpartido, P.acronimo
                                 FROM votos V, partidos P 
                                 WHERE V.tipo = 'N' AND V.idpartido = P.idpartido AND P.idemp  null
-                                GROUP BY V.idpartido, P.nombre, P.logo, P.idpartido`
+                                GROUP BY V.idpartido, P.nombre, P.logo, P.idpartido, P.acronimo`
       let idblancos = await encontrarBlanco();
       let idnulos = await encontrarNulo();
 
@@ -108,10 +108,10 @@ export default (): Router => {
 
   router.get("/:iddep/votos_diputado_distrito", async function (req: Request, res: Response, next: NextFunction) {
     try {
-      let response = await sql`SELECT P.nombre, sum (V.cantidad) as conteo, P.logo, P.idpartido
+      let response = await sql`SELECT P.nombre, sum (V.cantidad) as conteo, P.logo, P.idpartido, P.acronimo
                                 FROM votos V, partidos P 
                                 WHERE V.tipo = 'D' AND V.idpartido = P.idpartido AND P.idemp <> null
-                                GROUP BY V.idpartido, P.nombre, P.logo, P.idpartido`
+                                GROUP BY V.idpartido, P.nombre, P.logo, P.idpartido, P.acronimo`
 
       let idblancos = await encontrarBlanco();
       let idnulos = await encontrarNulo();
