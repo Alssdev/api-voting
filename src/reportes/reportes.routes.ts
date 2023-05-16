@@ -204,8 +204,12 @@ export default (): Router => {
                                                                               UNION
                                                                               (SELECT divisor2 FROM minorias_distrito WHERE iddep = ${req.params.iddep})
                                                                               UNION
-                                                                              (SELECT divisor3 FROM minorias_distrito WHERE iddep = ${req.params.iddep})) cifras
-                                                                        ORDER BY conteo DESC limit 1 OFFSET 2)), 0) AS cantidad_diputados 
+                                                                              (SELECT divisor3 FROM minorias_distrito WHERE iddep = ${req.params.iddep})
+                                                                              UNION
+                                                                              (SELECT divisor4 FROM minorias_distrito WHERE iddep = ${req.params.iddep})
+                                                                              UNION
+                                                                              (SELECT divisor5 FROM minorias_distrito WHERE iddep = ${req.params.iddep})) cifras
+                                                                        ORDER BY conteo DESC limit 1 OFFSET 4)), 0) AS cantidad_diputados 
                                                                         FROM minorias_distrito
                                                                         WHERE iddep = ${req.params.iddep}`;
       
@@ -235,63 +239,3 @@ export default (): Router => {
 
   return router;
 };
-
-
-/*
- PRESIDENTE:
-
-SELECT I.nombres, I.apellidos, P.nombre,  sum (V.cantidad)as conteo
-FROM votos V , candidatos C, ciudadanos I, partidos P 
-WHERE C.idemp = I.idemp AND C.idpartido = V.idpartido AND C.idpartido = P.idpartido AND C.tipo = 'P' AND V.tipo = 'P'
-GROUP BY V.idpartido, P.nombre,I.nombres, I.apellidos
-ORDER BY sum (V.cantidad) DESC
-
-
-ALCALDE: 
-
-SELECT I.nombres, I.apellidos, P.nombre, V.conteo
-FROM (SELECT V.idpartido, sum(V.cantidad) AS conteo
-    FROM votos V, establecimientos E, mesas M
-    WHERE V.tipo= 'A' AND V.idmesa =M.idmesa AND E.idest = M.idest AND E.idmunicipio = 1
-    GROUP BY V.idpartido) V, candidatos C, ciudadanos I, partidos P 
-WHERE C.idemp = I.idemp AND C.idpartido = V.idpartido AND C.idpartido = P.idpartido AND C.tipo = 'A'
-ORDER BY V.conteo DESC
-
-
-DISTRITO 
-// Por partido
-SELECT P.nombre, sum (V.cantidad)
-FROM votos V, partidos P 
-WHERE V.tipo = 'D' AND V.idpartido = P.idpartido
-GROUP BY V.idpartido, P.nombre
-
-// Por partido y departamento
-SELECT P.nombre, V.conteo
-FROM (SELECT V.idpartido, sum(V.cantidad) AS conteo 
-    FROM votos V
-    WHERE tipo = 'D' AND idmesa IN (SELECT  M.idmesa
-                    FROM municipios U, establecimientos E, mesas M
-                    WHERE U.idmunicipio = E.idmunicipio AND U.iddep = ${req.params.iddep} AND E.idest = M.idest)
-    GROUP BY V.idpartido
-) V,  partidos P 
-WHERE  V.idpartido = P.idpartido 
-ORDER BY V.conteo DESC
-
-LISTADO NACIONAL
-// Por partido
-SELECT P.nombre, sum (V.cantidad)
-FROM votos V, partidos P 
-WHERE V.tipo = 'N' AND V.idpartido = P.idpartido
-GROUP BY V.idpartido, P.nombre
-
-// Por partido y municipio
-SELECT P.nombre, V.conteo
-FROM (SELECT V.idpartido, sum(V.cantidad) AS conteo
-    FROM votos V, establecimientos E, mesas M
-    WHERE V.tipo= 'N' AND V.idmesa = M.idmesa AND E.idest = M.idest AND E.idmunicipio = 1
-    GROUP BY V.idpartido) V, partidos P 
-WHERE  V.idpartido = P.idpartido 
-ORDER BY V.conteo DESC
- */
-
-

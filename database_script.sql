@@ -135,18 +135,21 @@ CREATE VIEW ubicacion_mesas AS (
 		INNER JOIN municipios MM ON E.idmunicipio = MM.idmunicipio
 );
 
-/*Proceso  minorias diputados de listado distrito*/
 CREATE VIEW minorias_distrito AS (
 	SELECT P.idpartido, sum (V.cantidad) as conteo,TRUNC((sum (V.cantidad)/2),0)  as divisor2, 
-										TRUNC((sum (V.cantidad)/3),0) as divisor3, U.iddep
+		   TRUNC((sum (V.cantidad)/3),0) as divisor3,TRUNC((sum (V.cantidad)/4),0) as divisor4, 
+		   TRUNC((sum (V.cantidad)/5),0) as divisor5, U.iddep
 	FROM votos V, partidos P, ubicacion_mesas U 
 	WHERE V.tipo = 'D' AND V.idpartido = P.idpartido AND P.idemp IS NOT null AND U.idmesa= V.idmesa 
 	GROUP BY V.idpartido, P.idpartido,  V.cantidad, U.iddep
 	ORDER BY conteo DESC
 );
 
+
 /*Proceso  minorias diputados de nacional*/
-CREATE VIEW minorias_nacional AS (SELECT P.idpartido, sum (V.cantidad) as conteo,TRUNC((sum (V.cantidad)/2),0)  as divisor2, TRUNC((sum (V.cantidad)/3),0) as divisor3
+CREATE VIEW minorias_nacional AS (SELECT P.idpartido, sum (V.cantidad) as conteo,TRUNC((sum (V.cantidad)/2),0)  as divisor2, 
+		   TRUNC((sum (V.cantidad)/3),0) as divisor3,TRUNC((sum (V.cantidad)/4),0) as divisor4, 
+		   TRUNC((sum (V.cantidad)/5),0) as divisor5
 	FROM votos V, partidos P 
 	WHERE V.tipo = 'N' AND V.idpartido = P.idpartido AND P.idemp IS NOT null
 	GROUP BY V.idpartido, P.idpartido,  V.cantidad
@@ -158,7 +161,11 @@ CREATE VIEW cifra_repartidora_nacional AS (SELECT *
 			UNION
 			(SELECT divisor2 FROM minorias_nacional)
 			UNION
-			(SELECT divisor3 FROM minorias_nacional)) cifras
+			(SELECT divisor3 FROM minorias_nacional)
+		 	UNION 
+		 	(SELECT divisor4 FROM minorias_nacional)
+			UNION
+		 	(SELECT divisor5 FROM minorias_nacional)) cifras
 	ORDER BY conteo DESC limit 1 OFFSET 2
 );
 
@@ -205,18 +212,3 @@ VALUES (1, 1, 'P'), (2, 2, 'S'), (3, 3, 'V'), (4, 4, 'A');
 
 INSERT INTO partidos(nombre, acronimo, logo, idpartido)
 VALUES ('nulo', 'NULO', 'n', 100), ('blanco', 'BLA', 'b', 101);
-
-SELECT * FROM partidos;
-
-
-
-
-
-
-CREATE VIEW ubicacion_mesas AS (
-SELECT M.nmesa, M.idmesa, M.cotaInferior, M.cotaSuperior, MM.idmunicipio FROM mesas M
-	INNER JOIN establecimientos E ON M.idest = E.idest
-	INNER JOIN municipios MM ON E.idmunicipio = MM.idmunicipio
-);
-
-
